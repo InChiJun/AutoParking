@@ -31,6 +31,8 @@ ParkingSpaceStatus lastParkingSpaces[MAX_PARKING_SPACES];
 void CDS_set();
 void LED_set();
 void Parking_set();
+void Open_door();
+void Close_door();
 
 void setup()
 {
@@ -118,4 +120,19 @@ void Parking_set()
     for(int i = 0; i < MAX_PARKING_SPACES; ++i) {
         lastParkingSpaces[i] = EMPTY; // 마지막 상태도 EMPTY로 초기화
     }
+}
+
+void Open_door(){
+    myServo.writeMicroseconds(1450);
+    delay(1000);
+    myServo.writeMicroseconds(1500);
+    delay(1000);
+}
+
+void Close_door(){
+    myServo.writeMicroseconds(1570);
+    delay(1000);
+    myServo.writeMicroseconds(1500);
+    delay(1000);
+}
 }
