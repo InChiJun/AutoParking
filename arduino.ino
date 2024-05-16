@@ -31,10 +31,6 @@ ParkingSpaceStatus lastParkingSpaces[MAX_PARKING_SPACES];
 void CDS_set();
 void LED_set();
 void Parking_set();
-void display();
-String getTime();
-void Open_door();
-void Close_door();
 
 void setup()
 {
@@ -122,52 +118,4 @@ void Parking_set()
     for(int i = 0; i < MAX_PARKING_SPACES; ++i) {
         lastParkingSpaces[i] = EMPTY; // 마지막 상태도 EMPTY로 초기화
     }
-}
-
-void display(){
-    lcd.setCursor(0, 0);
-    lcd.print(getTime());
-    
-    lcd.setCursor(0, 1);
-    lcd.print();  
-}
-
-String getTime(){
-    while (!client.connect("google.com", 80)) {}
-    client.print("HEAD / HTTP/1.1\r\n\r\n");
-    while(!client.available()) {}
-    
-    while(client.available()){
-        if (client.read() == '\n') {    
-            if (client.read() == 'D') {    
-                if (client.read() == 'a') {    
-                    if (client.read() == 't') {    
-                        if (client.read() == 'e') {    
-                            if (client.read() == ':') {    
-                                client.read();
-                                String timeData = client.readStringUntil('\r');
-                                client.stop();
-                                return timeData;
-                            }
-                        }
-                    }
-               }
-            }
-        }
-    }
-}
-
-void Open_door(){
-    myServo.writeMicroseconds(1450);
-    delay(1000);
-    myServo.writeMicroseconds(1500);
-    delay(1000);
-}
-
-void Close_door(){
-    myServo.writeMicroseconds(1570);
-    delay(1000);
-    myServo.writeMicroseconds(1500);
-    delay(1000);
-}
 }
