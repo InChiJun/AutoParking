@@ -44,11 +44,32 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 
     // 쿼리 문자열 생성 및 실행
     char query[100];
-    sprintf(query, "INSERT INTO parking_data values ('%c','%c', '%s')", receiveMsg[14], receiveMsg[17], date);
-    if (mysql_query(conn, query) != 0)
+    MYSQL_ROW row;
+    sprintf(query, "SELECT * FROM parking_data WHERE parking_num = '%c';", receiveMsg[14]);
+
+    if (mysql_query(conn, query) != 0) // 쿼리문이 실패했다면
     {
         fprintf(stderr, "Error: mysql_query() failed\n"); // 쿼리 실행 오류시 출력
     }
+    else // 쿼리문이 성공했다면
+    {
+        MYSQL_RES *result = mysql_use_result(conn);
+        row = mysql_fetch_row(result);
+        printf("%s\n", row);
+        if(!row){ // 새로운 값을 넣는다면
+            sprintf(query, "INSERT INTO parking_data values ('%c','%c', '%s')", receiveMsg[14], receiveMsg[17], date);
+            mysql_query(conn, query);
+        }
+        else{ // 기존의 값을 수정한다면
+            sprintf(query, "UPDATE parking_data SET status='%c', collect_time='%s' WHERE parking_num='%c';", receiveMsg[17], date, receiveMsg[14]);
+            mysql_query(conn, query);
+            // sprintf(query, "UPDATE parking_data SET collect_time='%s' WHERE parking_num='%c';", date, receiveMsg[14]);
+            // mysql_query(conn, query);
+        }
+
+    }
+
+    printf("%s\n", query);
 
     mysql_close(conn); // 데이터베이스 연결 종료
 }
