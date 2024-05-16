@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <mosquitto.h>
 #include <mariadb/mysql.h> // MariaDB/MySQL 데이터베이스 라이브러리 포함
+#include <time.h> // 실시간 받아오는 라이브러리
+#include <string.h>
+
+// 메시지 전처리 함수
+
 
 // MQTT 메시지 수신 콜백 함수
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
@@ -12,6 +17,16 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     MYSQL *conn;
     conn = mysql_init(NULL);
 
+    // 메시지 복사 및 전처리
+    char* receiveMsg = (char*)malloc(sizeof(char) * 25);
+    strcpy(receiveMsg, (char *)message->payload);
+
+    time_t previous_time=time(NULL);
+    previous_time=time(NULL);
+    char date[20];
+    time_t now = time(NULL);
+    strftime(date, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
+
     // 데이터베이스 초기화 오류시
     if (conn == NULL) 
     {
@@ -20,7 +35,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     }
 
     // 데이터베이스 연결
-    if (mysql_real_connect(conn, "localhost", "username", "password", "database", 0, NULL, 0) == NULL)
+    if (mysql_real_connect(conn, "localhost", "root", "ubuntu", "raspi_db", 1883, NULL, 0) == NULL)
     {
         fprintf(stderr, "Error: mysql_real_connect() failed\n"); // 연결 오류시 출력
         mysql_close(conn);
@@ -29,7 +44,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 
     // 쿼리 문자열 생성 및 실행
     char query[100];
-    sprintf(query, "INSERT INTO sensor_data (value) VALUES ('%s')", (char*)message->payload);
+    sprintf(query, "INSERT INTO parking_data values ('%c','%c', '%s')", receiveMsg[14], receiveMsg[17], date);
     if (mysql_query(conn, query) != 0)
     {
         fprintf(stderr, "Error: mysql_query() failed\n"); // 쿼리 실행 오류시 출력
@@ -54,7 +69,7 @@ int main()
     }
 
     // MQTT 브로커에 연결
-    int rc = mosquitto_connect(mosq, "10.10.10.7", 1883, 60);
+    int rc = mosquitto_connect(mosq, "10.10.10.19", 1883, 60);
     if (rc != MOSQ_ERR_SUCCESS)
     {
         fprintf(stderr, "Error: Could not connect to MQTT broker.\n"); // MQtt 브로커 연결 오류시 출력
@@ -62,7 +77,7 @@ int main()
         mosquitto_lib_cleanup();
         return 1;
     }
-
+    
     // 메시지 수신 콜백 함수 설정
     mosquitto_message_callback_set(mosq, on_message);
 
