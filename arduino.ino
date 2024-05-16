@@ -83,7 +83,7 @@ void loop()
             digitalWrite(led[i], currentStatus == OCCUPIED ? HIGH : LOW);
 
             // MQTT 메시지 전송
-            String message = "Parking Space " + String(i) + ": " + (currentStatus == OCCUPIED ? "OCCUPIED" : "EMPTY");
+            String message = "Parking Space " + String(i) + ":" + (currentStatus == OCCUPIED ? "O" : "X");
             mqttClient.beginMessage(p_topic);
             mqttClient.print(message);
             mqttClient.endMessage();
