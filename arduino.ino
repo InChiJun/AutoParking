@@ -70,7 +70,7 @@ void setup()
 
 void loop()
 {
-    // 0 : 공석, 1 : 자리 있음
+    // O : 주차된 차량 있음, X : 주차된 차량 없음
     for(int i = 0; i < MAX_PARKING_SPACES; ++i)
     {
          // 현재 조도 센서 값에 따라 주차 공간의 상태를 결정
