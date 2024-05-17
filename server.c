@@ -138,6 +138,13 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
                     sprintf(payload, "Parking Number: %s, Time: %s", min_parking_num, dateTime);
                     mosquitto_publish(mosq, NULL, "server/1/parking_data", strlen(payload), payload, 0, false);
                 }
+                else
+                {
+                    // MQTT 주제로 전송
+                    char payload[50];
+                    sprintf(payload, "Parking Number: -1, Time: %s", dateTime);
+                    mosquitto_publish(mosq, NULL, "server/1/parking_data", strlen(payload), payload, 0, false);
+                }
                 mysql_free_result(result); // 결과 집합 해제
             }
         }
