@@ -83,6 +83,7 @@ void loop()
         wifi_mqtt_sub();
         Open_door();
         delay(5000);
+        lcd.clear();
     }
     else    // 차량이 떠나면
     {
